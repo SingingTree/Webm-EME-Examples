@@ -51,8 +51,6 @@ limitations under the License.
     </div>
     <script>
     var video = document.getElementById('v');
-    var progressText = document.getElementById('mediaProgressText');
-    var progressBar = document.getElementById('mediaProgressBar');
     var videoURL = 'big-buck-bunny_trailer_video-clearkey-encrypted.webm';
     var audioURL = 'big-buck-bunny_trailer_audio.webm';
     var videoMimeType = 'video/webm;codecs="vp8"';
@@ -199,6 +197,8 @@ limitations under the License.
     }
 
     function updateVideoProgress(e) {
+      var videoProgressText = document.getElementById('videoProgressText');
+      var videoProgressBar = document.getElementById('videoProgressBar');
       if(e.lengthComputable) {
         videoProgressText.innerHTML  = (e.loaded / e.total) * 100;
         videoProgressBar.value = (e.loaded / e.total) * 100;
@@ -208,6 +208,8 @@ limitations under the License.
     }
 
     function updateAudioProgress(e) {
+      var audioProgressText = document.getElementById('audioProgressText');
+      var audioProgressBar = document.getElementById('audioProgressBar');
       if(e.lengthComputable) {
         audioProgressText.innerHTML  = (e.loaded / e.total) * 100;
         audioProgressBar.value = (e.loaded / e.total) * 100;
