@@ -1,0 +1,94 @@
+<!--
+Copyright 2016, Mozilla Foundation and contributors
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<html>
+  <head>
+    <title>MSE + EME WebM Demo</title>
+    <style>
+      #log {
+        font-size: small;
+      }
+      video {
+        max-width: 100%;
+      }
+      h1 {
+        font-family: arial;
+        font-size: large;
+      }
+    </style>
+    <script type="text/javascript" src="resources.js"></script>
+    <script type="text/javascript" src="mse.js"></script>
+    <script type="text/javascript" src="eme.js"></script>
+  </head>
+  <body>
+
+    <h1>Media Source Extensions and Encrypted Media Extensions with WebM</h1>
+
+    <div>
+      Video downloaded: <span id="videoProgressText">0</span>% :
+      <progress id="videoProgressBar" min="0" max="100" value="0">0% complete</progress>
+    </div>
+
+    <div>
+      Audio downloaded: <span id="audioProgressText">0</span>% :
+      <progress id="audioProgressBar" min="0" max="100" value="0">0% complete</progress>
+    </div>
+
+    <video id="vid" controls preload="auto">
+      Video
+    </video>
+    <br>
+    <div id="log">
+    </div>
+    <script>
+    var video = document.getElementById('vid');
+    var config = [
+      {
+        initDataTypes: ['webm'],
+        videoCapabilities: [{contentType: videoMimeType}],
+        audioCapabilities: [{contentType: audioMimeType}]
+      }
+    ];
+
+    var mediaSource = new MediaSource();
+    log('Media source state: ' + mediaSource.readyState); // closed
+
+    video.addEventListener('error', function(e) {
+      log('Got error!: ' + e);
+    });
+    setupMediaKeys(video, config).then(
+      function() {
+        video.addEventListener('encrypted', encryptedEventHandler);
+        video.src = URL.createObjectURL(mediaSource);
+        mediaSource.addEventListener('sourceopen', function() {
+          Promise.all([
+            loadSourceBuffer(mediaSource, encryptedVideoURL,
+              videoMimeType, updateVideoProgress),
+            loadSourceBuffer(mediaSource, encryptedAudioURL,
+              audioMimeType, updateAudioProgress)
+          ]).then(function() {
+            mediaSource.endOfStream();
+            log('Media source state: ' + mediaSource.readyState); // ended
+            video.play();
+          });
+        });
+      },
+      function(failureReason) {
+        log('Failed to setup media keys: ' + failureReason.message);
+      }
+    );
+    </script>
+  </body>
+</html>
