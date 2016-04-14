@@ -28,6 +28,9 @@ limitations under the License.
         font-size: large;
       }
     </style>
+    <script type="text/javascript" src="resources.js"></script>
+    <script type="text/javascript" src="mse.js"></script>
+    <script type="text/javascript" src="eme.js"></script>
   </head>
   <body>
 
@@ -43,198 +46,49 @@ limitations under the License.
       <progress id="audioProgressBar" min="0" max="100" value="0">0% complete</progress>
     </div>
 
-    <video id="v" controls preload="auto">
+    <video id="vid" controls preload="auto">
       Video
     </video>
     <br>
     <div id="log">
     </div>
     <script>
-    var video = document.getElementById('v');
-    var videoURL = 'media/big-buck-bunny_trailer_video-clearkey-encrypted.webm';
-    var audioURL = 'media/big-buck-bunny_trailer_audio.webm';
-    var videoMimeType = 'video/webm;codecs="vp8"';
-    var audioMimeType = 'audio/webm;codecs="vorbis"';
+    var video = document.getElementById('vid');
     var config = [
       {
         initDataTypes: ['webm'],
         videoCapabilities: [{contentType: videoMimeType}],
+        audioCapabilities: [{contentType: audioMimeType}]
       }
     ];
-    var key = new Uint8Array([
-      0x80, 0x8B, 0x9A, 0xDA, 0xC3, 0x84, 0xDE, 0x1E,
-      0x4F, 0x56, 0x14, 0x0F, 0x4A, 0xD7, 0x61, 0x94
-    ]);
 
-    var mediaSource = new MediaSource;
+    var mediaSource = new MediaSource();
     log('Media source state: ' + mediaSource.readyState); // closed
-    video.addEventListener('encrypted', encrypted)
+
     video.addEventListener('error', function(e) {
       log('Got error!: ' + e);
     });
-    video.src = URL.createObjectURL(mediaSource);
-    mediaSource.addEventListener('sourceopen', mediaSourceOpen);
-    function encrypted(e) {
-      log('Got encrypted event');
-
-      // Setup media keys
-      if (!video.mediaKeys) {
-        navigator.requestMediaKeySystemAccess('org.w3.clearkey', config).then(
-          function(keySystemAccess) {
-            var mediaKeysPromise = keySystemAccess.createMediaKeys();
-
-            mediaKeysPromise.then(
-              // Accepted
-              function(createdMediaKeys) {
-                return video.setMediaKeys(createdMediaKeys);
-              },
-              // Rejected
-              function(failureReason) {
-                log('createMediaKeys failed: ' + failureReason);
-              }
-            ).then(
-              // Accepted
-              function() {
-                var session = video.mediaKeys.createSession();
-                session.addEventListener('message', handleMessage);
-                return session.generateRequest(e.initDataType, e.initData);
-              },
-              // Rejected
-              function(failureReason) {
-                log('setMediaKeys failed: ' + failureReason);
-              }
-            ).catch(
-              function(failureReason) {
-                log('createSession failed' + failureReason);
-              }
-            );
-          }
-        );
-      }
-      // Done setting up media keys
-    }
-
-    // Convert Uint8Array into base64 using base64url alphabet, without padding.
-    function toBase64(u8arr) {
-      return btoa(String.fromCharCode.apply(null, u8arr)).
-          replace(/\+/g, '-').replace(/\//g, '_').replace(/=*$/, '');
-    }
-
-    function generateLicense(message) {
-      // Parse the clearkey license request.
-      var request = JSON.parse(new TextDecoder().decode(message));
-      // We only know one key, so there should only be one key ID.
-      // A real license server could easily serve multiple keys.
-      console.assert(request.kids.length === 1);
-
-      var keyObj = {
-        kty: 'oct',
-        alg: 'A128KW',
-        kid: request.kids[0],
-        k: toBase64(key)
-      };
-      return new TextEncoder().encode(JSON.stringify({
-        keys: [keyObj]
-      }));
-    }
-
-    function handleMessage(e) {
-      var session = e.target;
-      var license = generateLicense(e.message);
-      session.update(license).catch(
-        function(failureReason) {
-         log('update() failed: ' + failureReason);
-        }
-      );
-    }
-
-    function videoSourceOpen() {
-      log('Media source state: ' + mediaSource.readyState); // open
-      var sourceBuffer = mediaSource.addSourceBuffer(videoMimeType);
-      // Promise to resolve when our source buffer has updateend
-      var fetchedPromise = new Promise(function(resolve, reject) {
-        sourceBuffer.addEventListener('updateend', function () {
-          resolve();
+    setupMediaKeys(video, config).then(
+      function() {
+        video.addEventListener('encrypted', encryptedEventHandler);
+        video.src = URL.createObjectURL(mediaSource);
+        mediaSource.addEventListener('sourceopen', function() {
+          Promise.all([
+            loadSourceBuffer(mediaSource, encryptedVideoURL,
+              videoMimeType, updateVideoProgress),
+            loadSourceBuffer(mediaSource, audioURL,
+              audioMimeType, updateAudioProgress)
+          ]).then(function() {
+            mediaSource.endOfStream();
+            log('Media source state: ' + mediaSource.readyState); // ended
+            video.play();
+          });
         });
-      });
-      fetchArrayBuffer(
-        videoURL,
-        function(buf) {
-          sourceBuffer.appendBuffer(buf);
-        },
-        updateVideoProgress
-      );
-      return fetchedPromise;
-    }
-
-    function audioSourceOpen() {
-      log('Media source state: ' + mediaSource.readyState); // open
-      var sourceBuffer = mediaSource.addSourceBuffer(audioMimeType);
-      // Promise to resolve when our source buffer has updateend
-      var fetchedPromise = new Promise(function(resolve, reject) {
-        sourceBuffer.addEventListener('updateend', function () {
-          resolve();
-        });
-      });
-      fetchArrayBuffer(
-        audioURL,
-        function(buf) {
-          sourceBuffer.appendBuffer(buf);
-        },
-        updateAudioProgress
-      );
-      return fetchedPromise;
-    }
-
-    function mediaSourceOpen(_) {
-      mediaSource.removeEventListener('sourceopen', mediaSourceOpen);
-       Promise.all([videoSourceOpen(), audioSourceOpen()])
-         .then(function() {
-           mediaSource.endOfStream();
-           video.play();
-           log('Media source state: ' + mediaSource.readyState); // ended
-         });
-    }
-
-    function updateVideoProgress(e) {
-      var videoProgressText = document.getElementById('videoProgressText');
-      var videoProgressBar = document.getElementById('videoProgressBar');
-      if(e.lengthComputable) {
-        videoProgressText.innerHTML  = (e.loaded / e.total) * 100;
-        videoProgressBar.value = (e.loaded / e.total) * 100;
-      } else {
-        vidoProgressText.innerHTML  = "Length not computable";
+      },
+      function(failureReason) {
+        log('Failed to setup media keys: ' + failureReason.message);
       }
-    }
-
-    function updateAudioProgress(e) {
-      var audioProgressText = document.getElementById('audioProgressText');
-      var audioProgressBar = document.getElementById('audioProgressBar');
-      if(e.lengthComputable) {
-        audioProgressText.innerHTML  = (e.loaded / e.total) * 100;
-        audioProgressBar.value = (e.loaded / e.total) * 100;
-      } else {
-        audioProgressText.innerHTML  = "Length not computable";
-      }
-    }
-
-    function fetchArrayBuffer(url, onLoadFunc, updateFunc) {
-      log('Fetching from URL: ' + url);
-      var xhr = new XMLHttpRequest;
-      xhr.onprogress = updateFunc;
-      xhr.open('get', url);
-      xhr.responseType = 'arraybuffer';
-      xhr.onload = function () {
-        onLoadFunc(xhr.response);
-      };
-      xhr.send();
-    }
-
-    function log(msg) {
-      var logDiv = document.getElementById('log');
-      logDiv.appendChild(document.createTextNode(msg));
-      logDiv.appendChild(document.createElement("br"));
-    }
+    );
     </script>
   </body>
 </html>
