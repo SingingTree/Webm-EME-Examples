@@ -1,9 +1,11 @@
 var encryptedVideoURL = 'media/big-buck-bunny_trailer_video-clearkey-encrypted.webm';
 var encryptedAudioURL = 'media/big-buck-bunny_trailer_audio-clearkey-encrypted.webm';
+var audioURL = 'media/big-buck-bunny_trailer_audio.webm';
 
 var subsampleEncryptedVideoUrl = 'media/sintel-trailer_video-clearkey-subsample-encrypted.webm';
+var subsampleEncryptedAudioUrl = 'media/sintel-trailer_video-clearkey-subsample-encrypted.webm';
+var subsampleUnEncryptedAudioUrl = 'media/sintel-trailer_audio.webm';
 
-var audioURL = 'media/big-buck-bunny_trailer_audio.webm';
 var videoMimeType = 'video/webm;codecs="vp8"';
 var audioMimeType = 'audio/webm;codecs="vorbis"';
 
