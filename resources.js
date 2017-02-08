@@ -3,7 +3,7 @@ var encryptedAudioURL = 'media/big-buck-bunny_trailer_audio-clearkey-encrypted.w
 var audioURL = 'media/big-buck-bunny_trailer_audio.webm';
 
 var subsampleEncryptedVideoUrl = 'media/sintel-trailer_video-clearkey-subsample-encrypted.webm';
-var subsampleEncryptedAudioUrl = 'media/sintel-trailer_video-clearkey-subsample-encrypted.webm';
+var subsampleEncryptedAudioUrl = 'media/sintel-trailer_audio-clearkey-subsample-encrypted.webm';
 var subsampleUnencryptedAudioUrl = 'media/sintel-trailer_audio.webm';
 
 var videoMimeType = 'video/webm;codecs="vp8"';
