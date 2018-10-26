@@ -4,4 +4,4 @@ This repo includes examples of Media Source Extensions (MSE) + Encrypted Media E
 
 ## Live version
 
-A live version can be found on the gh-pages for this repo [here](http://singingtree.github.io/Webm-EME-Examples/).
+A live version can be found on the gh-pages for this repo [here](https://singingtree.github.io/Webm-EME-Examples/).
