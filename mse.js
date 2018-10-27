@@ -11,16 +11,16 @@ function loadSourceBuffer(mediaSource, mediaURL, mediaMimeType, progressCallback
   "use strict";
   log('Loading: ' + mediaURL);
   log('Media source state: ' + mediaSource.readyState); // open
-  var sourceBuffer = mediaSource.addSourceBuffer(mediaMimeType);
+  let sourceBuffer = mediaSource.addSourceBuffer(mediaMimeType);
   // Promise to resolve when our source buffer has updateend
-  var fetchedPromise = new Promise(function(resolve, reject) {
-    sourceBuffer.addEventListener('updateend', function () {
+  let fetchedPromise = new Promise(resolve => {
+    sourceBuffer.addEventListener('updateend', () => {
       resolve();
     });
   });
   fetchArrayBuffer(
     mediaURL,
-    function(buf) {
+    buf => {
       sourceBuffer.appendBuffer(buf);
     },
     progressCallback
