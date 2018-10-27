@@ -1,6 +1,6 @@
 # WebM MSE + EME Examples
 
-This repo includes examples of Media Source Extensions (MSE) + Encrypted Media Extensions (EME) for WebM files (containing VP8 video and Vorbis audio).
+This repo includes examples of Media Source Extensions (MSE) + Encrypted Media Extensions (EME) for WebM files.
 
 ## Live version
 
