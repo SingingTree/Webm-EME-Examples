@@ -48,34 +48,34 @@ limitations under the License.
     <div id="log">
     </div>
     <script>
-    var video = document.getElementById('vid');
-    var config = [
+    let video = document.getElementById('vid');
+    let config = [
       {
         initDataTypes: ['webm'],
-        videoCapabilities: [{contentType: videoMimeType}],
+        videoCapabilities: [{contentType: vp9MimeType}],
       }
     ];
 
-    var mediaSource = new MediaSource();
+    let mediaSource = new MediaSource();
     log('Media source state: ' + mediaSource.readyState); // closed
 
-    video.addEventListener('error', function(e) {
+    video.addEventListener('error', e => {
       log('Got error!: ' + e);
     });
     setupMediaKeys(video, config).then(
-      function() {
+      () => {
         video.addEventListener('encrypted', encryptedEventHandler);
         video.src = URL.createObjectURL(mediaSource);
-        mediaSource.addEventListener('sourceopen', function() {
+        mediaSource.addEventListener('sourceopen', () => {
           loadSourceBuffer(mediaSource, subsampleEncryptedVideoUrl,
-            videoMimeType, updateVideoProgress).then(function() {
+            vp9MimeType, updateVideoProgress).then(() => {
               mediaSource.endOfStream();
               log('Media source state: ' + mediaSource.readyState); // ended
               video.play();
             });
         });
       },
-      function(failureReason) {
+      failureReason => {
         log('Failed to setup media keys: ' + failureReason.message);
       }
     );
