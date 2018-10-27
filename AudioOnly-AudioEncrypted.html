@@ -52,7 +52,7 @@ limitations under the License.
     let config = [
       {
         initDataTypes: ['webm'],
-        audioCapabilities: [{contentType: audioMimeType}]
+        audioCapabilities: [{contentType: vorbisMimeType}]
       }
     ];
 
@@ -68,7 +68,7 @@ limitations under the License.
         video.src = URL.createObjectURL(mediaSource);
         mediaSource.addEventListener('sourceopen', () => {
           loadSourceBuffer(mediaSource, encryptedAudioURL,
-            audioMimeType, updateAudioProgress).then(() => {
+            vorbisMimeType, updateAudioProgress).then(() => {
               mediaSource.endOfStream();
               log('Media source state: ' + mediaSource.readyState); // ended
               video.play();

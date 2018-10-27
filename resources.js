@@ -6,8 +6,10 @@ let subsampleEncryptedVideoUrl = 'media/sintel-trailer_video-clearkey-subsample-
 let subsampleEncryptedAudioUrl = 'media/sintel-trailer_audio-clearkey-subsample-encrypted.webm';
 let subsampleUnencryptedAudioUrl = 'media/sintel-trailer_audio.webm';
 
-let videoMimeType = 'video/webm;codecs="vp8"';
-let audioMimeType = 'audio/webm;codecs="vorbis"';
+const vp8MimeType = 'video/webm;codecs="vp8"';
+const vp9MimeType = 'video/webm;codecs="vp9"';
+const opusMimeType = 'audio/webm;codecs="opus"';
+const vorbisMimeType = 'audio/webm;codecs="vorbis"';
 
 /**
  * Write a message to the log <div> on page

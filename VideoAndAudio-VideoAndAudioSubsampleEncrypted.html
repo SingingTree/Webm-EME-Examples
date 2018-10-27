@@ -57,8 +57,8 @@ limitations under the License.
     let config = [
       {
         initDataTypes: ['webm'],
-        videoCapabilities: [{contentType: videoMimeType}],
-        audioCapabilities: [{contentType: audioMimeType}]
+        videoCapabilities: [{contentType: vp9MimeType}],
+        audioCapabilities: [{contentType: opusMimeType}]
       }
     ];
 
@@ -75,9 +75,9 @@ limitations under the License.
         mediaSource.addEventListener('sourceopen', () => {
           Promise.all([
             loadSourceBuffer(mediaSource, subsampleEncryptedVideoUrl,
-              videoMimeType, updateVideoProgress),
+              vp9MimeType, updateVideoProgress),
             loadSourceBuffer(mediaSource, subsampleEncryptedAudioUrl,
-              audioMimeType, updateAudioProgress)
+              opusMimeType, updateAudioProgress)
           ]).then(() => {
             mediaSource.endOfStream();
             log('Media source state: ' + mediaSource.readyState); // ended

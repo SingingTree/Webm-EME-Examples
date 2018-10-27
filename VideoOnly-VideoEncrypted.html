@@ -52,7 +52,7 @@ limitations under the License.
     let config = [
       {
         initDataTypes: ['webm'],
-        videoCapabilities: [{contentType: videoMimeType}],
+        videoCapabilities: [{contentType: vp8MimeType}],
       }
     ];
 
@@ -68,7 +68,7 @@ limitations under the License.
         video.src = URL.createObjectURL(mediaSource);
         mediaSource.addEventListener('sourceopen', () => {
           loadSourceBuffer(mediaSource, encryptedVideoURL,
-            videoMimeType, updateVideoProgress).then(() => {
+            vp8MimeType, updateVideoProgress).then(() => {
               mediaSource.endOfStream();
               log('Media source state: ' + mediaSource.readyState); // ended
               video.play();
