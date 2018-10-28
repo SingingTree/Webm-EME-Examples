@@ -9,7 +9,7 @@ let videoKey = new Uint8Array([
 /**
  * Key id in big-buck-bunny_trailer_video-clearkey-encrypted.webm for {videoKey}
  */
-let videoKeyId = 'LNsO1hGYU-eFBnHD6ZBsPA';
+let videoKeyId = "LNsO1hGYU-eFBnHD6ZBsPA";
 
 /**
  * Key for audio contained in big-buck-bunny_trailer_audio-clearkey-encrypted.webm
@@ -22,7 +22,7 @@ let audioKey = new Uint8Array([
 /**
  * Key id in big-buck-bunny_trailer_audio-clearkey-encrypted.webm for {audioKey}
  */
-let audioKeyId = 'QU-g5jS0AZ7fyJfhfCE3hg';
+let audioKeyId = "QU-g5jS0AZ7fyJfhfCE3hg";
 
 /**
  * Map from key ids to actual keys. This is used when generating licenses
@@ -39,7 +39,7 @@ keyMap.set(audioKeyId, audioKey);
 function toBase64(u8arr) {
   "use strict";
   return btoa(String.fromCharCode.apply(null, u8arr)).
-      replace(/\+/g, '-').replace(/\//g, '_').replace(/=*$/, '');
+      replace(/\+/g, "-").replace(/\//g, "_").replace(/=*$/, "");
 }
 /**
  * Attempts to setup key system access, create media keys, and set those keys on
@@ -52,7 +52,7 @@ function toBase64(u8arr) {
  */
 async function setupMediaKeys(video, config) {
   "use strict";
-  let keySystemAccess = await navigator.requestMediaKeySystemAccess('org.w3.clearkey', config);
+  let keySystemAccess = await navigator.requestMediaKeySystemAccess("org.w3.clearkey", config);
   let mediaKeys = await keySystemAccess.createMediaKeys();
   return video.setMediaKeys(mediaKeys);
 }
@@ -65,11 +65,11 @@ async function setupMediaKeys(video, config) {
  */
 function encryptedEventHandler(e) {
   "use strict";
-  log('Got encrypted event');
+  log("Got encrypted event");
 
   let video = e.target;
   let session = video.mediaKeys.createSession();
-  session.addEventListener('message', messageHandler);
+  session.addEventListener("message", messageHandler);
   return session.generateRequest(e.initDataType, e.initData);
 }
 
@@ -83,12 +83,14 @@ function generateLicense(message) {
   // Parse the clearkey license request.
   let request = JSON.parse(new TextDecoder().decode(message));
   // We expect to only have one key requested at a time
-  console.assert(request.kids.length === 1);
+  if (request.kids.length === 1) {
+    log("Got more than one key requested! We don't expect this!");
+  }
 
   // Create our clear key object, looking up the key based on the key id
   let keyObj = {
-    kty: 'oct',
-    alg: 'A128KW',
+    kty: "oct",
+    alg: "A128KW",
     kid: request.kids[0],
     k: toBase64(keyMap.get(request.kids[0]))
   };
@@ -107,7 +109,7 @@ function messageHandler(e) {
   let license = generateLicense(e.message);
   session.update(license).catch(
     function(failureReason) {
-     log('update() failed: ' + failureReason.message);
+     log("update() failed: " + failureReason.message);
     }
   );
 }
