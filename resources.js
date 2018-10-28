@@ -391,7 +391,7 @@ function setupPage(audio, video) { // eslint-disable-line no-unused-vars
         if (audioUrl) {
           promises.push(
             loadSourceBuffer(mediaSource, audioUrl,
-              vorbisMimeType, updateAudioProgress)
+              audioMimeType, updateAudioProgress)
           );
         }
         Promise.all(promises).then(() => {
