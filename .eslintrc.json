@@ -8,13 +8,9 @@
         "browser": true,
         "es6": true
     },
-    "globals": {
-        "log": true
-    },
     "rules": {
         "keyword-spacing": "warn",
         "linebreak-style": "warn",
-        "no-unused-vars": "off",
         "no-undef": "error",
         "quotes": "warn"
     }
